@@ -88,14 +88,57 @@
   };
 
   window.logoutHealthOne = function () {
-    localStorage.removeItem(SESSION_KEY);
-    (async () => {
-      try {
-        const f = await getFirebaseAuthAndDb();
-        if (f && f.signOut) await f.signOut(f.auth);
-      } catch (e) { console.warn('Firebase signOut failed', e); }
-      window.location.href = 'index.html';
-    })();
+    console.log('Starting logout process...');
+    
+    try {
+      // Clear local session immediately
+      localStorage.removeItem(SESSION_KEY);
+      console.log('Local session cleared');
+      
+      // Set a timeout for the logout process
+      const logoutTimeout = setTimeout(() => {
+        console.log('Logout timeout reached, forcing redirect');
+        window.location.replace('index.html');
+      }, 3000); // 3 second timeout
+      
+      // Clear Firebase auth in background
+      (async () => {
+        try {
+          const f = await getFirebaseAuthAndDb();
+          if (f && f.signOut && f.auth) {
+            console.log('Signing out from Firebase...');
+            await f.signOut(f.auth);
+            console.log('Firebase signOut successful');
+          } else {
+            console.log('No Firebase auth to sign out from');
+          }
+        } catch (e) { 
+          console.warn('Firebase signOut failed (continuing with local logout):', e); 
+        } finally {
+          clearTimeout(logoutTimeout);
+          console.log('Redirecting to index.html');
+          window.location.href = 'index.html';
+        }
+      })();
+      
+    } catch (e) {
+      console.error('Logout failed, forcing redirect:', e);
+      // Force redirect even if everything else fails
+      window.location.replace('index.html');
+    }
+  };
+
+  // Fallback logout function for when main one fails
+  window.forceLogout = function () {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      window.location.replace('index.html');
+    } catch (e) {
+      console.error('Even force logout failed:', e);
+      // Last resort - try to navigate using document.location
+      document.location.href = 'index.html';
+    }
   };
 
   // ── Create cloud user (called from admin.js) ────────────────────────────────
@@ -276,11 +319,33 @@
   const btnLogout = document.getElementById('btn-logout');
   if (btnLogout) {
     window.requireAuthOrRedirect();
-    btnLogout.addEventListener('click', async () => {
-      const ok = typeof window.showConfirm === 'function'
-        ? await window.showConfirm('D\u00e9connexion', 'Voulez-vous vous d\u00e9connecter ?')
-        : window.confirm('Voulez-vous vous d\u00e9connecter ?');
-      if (ok) window.logoutHealthOne();
+    btnLogout.addEventListener('click', async (e) => {
+      e.preventDefault();
+      console.log('Logout button clicked');
+      
+      try {
+        const ok = typeof window.showConfirm === 'function'
+          ? await window.showConfirm('D\u00e9connexion', 'Voulez-vous vous d\u00e9connecter ?')
+          : window.confirm('Voulez-vous vous d\u00e9connecter ?');
+          
+        console.log('Logout confirmation:', ok);
+        
+        if (ok) {
+          console.log('Calling window.logoutHealthOne()');
+          if (typeof window.logoutHealthOne === 'function') {
+            window.logoutHealthOne();
+          } else {
+            console.error('logoutHealthOne function not found, forcing logout');
+            localStorage.removeItem('healthone_session');
+            window.location.href = 'index.html';
+          }
+        }
+      } catch (error) {
+        console.error('Logout error:', error);
+        // Fallback logout
+        localStorage.removeItem('healthone_session');
+        window.location.href = 'index.html';
+      }
     });
   }
 })();

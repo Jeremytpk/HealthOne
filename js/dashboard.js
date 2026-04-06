@@ -511,4 +511,30 @@
       }
     });
   }
+
+  // ── Logout handling ─────────────────────────────────────────────────────────
+  const btnLogout = document.getElementById('btn-logout');
+  if (btnLogout) {
+    btnLogout.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Dashboard logout button clicked');
+      
+      try {
+        if (typeof window.logoutHealthOne === 'function') {
+          console.log('Calling window.logoutHealthOne() from dashboard');
+          window.logoutHealthOne();
+        } else {
+          console.error('logoutHealthOne function not found, forcing logout');
+          localStorage.removeItem('healthone_session');
+          window.location.href = 'index.html';
+        }
+      } catch (error) {
+        console.error('Dashboard logout error, forcing logout:', error);
+        localStorage.removeItem('healthone_session');
+        window.location.replace('index.html');
+      }
+    });
+  }
+
 })();

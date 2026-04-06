@@ -136,11 +136,37 @@
 
   const btnLogout = document.getElementById('btn-logout');
   if (btnLogout) {
-    btnLogout.addEventListener('click', async () => {
-      const ok = typeof window.showConfirm === 'function'
-        ? await window.showConfirm('Déconnexion', 'Voulez-vous vous déconnecter ?')
-        : window.confirm('Voulez-vous vous déconnecter ?');
-      if (ok) window.logoutHealthOne();
+    btnLogout.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log('Admin logout button clicked');
+      
+      try {
+        const ok = typeof window.showConfirm === 'function'
+          ? await window.showConfirm('Déconnexion', 'Voulez-vous vous déconnecter ?')
+          : window.confirm('Voulez-vous vous déconnecter ?');
+          
+        console.log('Admin logout confirmation:', ok);
+        
+        if (ok) {
+          console.log('User confirmed logout, proceeding...');
+          
+          // Immediate logout with timeout fallback
+          if (typeof window.logoutHealthOne === 'function') {
+            window.logoutHealthOne();
+          } else {
+            console.error('logoutHealthOne function not found, forcing logout');
+            localStorage.removeItem('healthone_session');
+            window.location.href = 'index.html';
+          }
+        } else {
+          console.log('User cancelled logout');
+        }
+      } catch (error) {
+        console.error('Admin logout error, forcing logout:', error);
+        localStorage.removeItem('healthone_session');
+        window.location.replace('index.html');
+      }
     });
   }
 
