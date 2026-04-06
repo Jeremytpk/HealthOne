@@ -326,12 +326,6 @@
     const listEl = document.createElement('div');
     listEl.className = 'personnel-grid';
     finalFiltered.forEach((u) => {
-      // Count patients assigned to this person
-      const assignedPatients = patients.filter(p => {
-        const doctorName = u.fullName || u.name || u.username || '';
-        return p.assignedDoctor === doctorName;
-      }).length;
-      
       const card = document.createElement('div');
       card.className = 'personnel-card'; // card class is on the parent now
       const roleLabel = u.role ? formatRole(u.role) : '—';
@@ -358,12 +352,6 @@
               ${escapeHtml(u.hospital || '—')}
             </span>
           </div>
-        </div>
-        <div class="personnel-card-stats">
-          <span class="personnel-patient-count">
-            ${assignedPatients}
-            <span class="personnel-patient-label">patient${assignedPatients !== 1 ? 's' : ''}</span>
-          </span>
         </div>
       `;
       listEl.appendChild(card);
