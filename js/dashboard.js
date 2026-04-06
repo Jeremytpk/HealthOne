@@ -53,7 +53,13 @@
   function formatDept(d)   { return DEPT_LABELS_FR[d] || d; }
   function formatStatus(s) {
     if (!s) return '\u2014';
-    const map = { Waiting: 'En attente', 'In triage': 'En triage', 'In treatment': 'En traitement', 'Discharged': 'Sorti(e)' };
+    const map = { 
+      'Waiting': 'En attente', 
+      'In triage': 'En triage', 
+      'In treatment': 'En traitement', 
+      'Discharged': 'Sorti(e)',
+      'Admitted': 'Admis'
+    };
     return map[s] || s;
   }
 
