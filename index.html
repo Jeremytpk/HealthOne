@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthOne — Connexion</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Sans:wght@500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="auth-page">
+  <div class="auth-shell">
+    <header class="auth-brand">
+      <img src="assets/HealthOneLogo.png" alt="HealthOne" class="auth-logo" />
+      <div>
+        <h1>HealthOne</h1>
+        <p class="auth-tagline">Gestion hospitalière</p>
+      </div>
+    </header>
+
+    <main class="auth-card card">
+      <form id="form-login" class="auth-form" novalidate>
+        <label class="field">
+          <span class="field-label">Téléphone ou identifiant</span>
+          <input type="text" name="identifier" autocomplete="username tel" required class="input" placeholder="+22890123456 ou jmartin" />
+        </label>
+        <label class="field">
+          <span class="field-label">Mot de passe</span>
+          <input type="password" name="password" autocomplete="current-password" required class="input" />
+        </label>
+        <p id="login-error" class="form-error" hidden></p>
+        <button type="submit" class="btn btn-primary btn-block">Se connecter</button>
+      </form>
+    </main>
+
+    <div style="margin-top:1rem; display:flex; gap:0.5rem; align-items:center; justify-content:center;">
+      <button type="button" id="btn-admin" class="btn btn-ghost btn-sm">Administration</button>
+      <div id="admin-panel" style="display:none;">
+        <button type="button" id="btn-admin-login" class="btn btn-ghost btn-sm">Connexion admin</button>
+      </div>
+    </div>
+
+    <p class="auth-foot">Accès sécurisé · HealthOne</p>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/storage.js"></script>
+  <!-- SheetJS for Excel export (CDN) -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="js/exportExcel.js"></script>
+  <script src="js/auth.js"></script>
+
+  <!-- Recaptcha container for Firebase Phone Auth -->
+  <div id="recaptcha-container" style="position:fixed; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden;" aria-hidden="true"></div>
+</body>
+</html>

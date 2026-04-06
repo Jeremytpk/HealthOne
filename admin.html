@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthOne — Administration</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Sans:wght@500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="app-body">
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Navigation administration">
+      <div class="sidebar-brand">
+        <img src="assets/HealthOneLogo.png" alt="HealthOne" class="sidebar-logo" />
+        <span>HealthOne</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#overview" class="nav-link is-active" data-section="overview">Vue d'ensemble</a>
+        <a href="#staff" class="nav-link" data-section="staff">Personnel</a>
+        <a href="#hospitals" class="nav-link" data-section="hospitals">Hôpitaux</a>
+        <a href="#services" class="nav-link" data-section="services">Services</a>
+        <a href="#patients" class="nav-link" data-section="patients">Patients</a>
+        <a href="#files" class="nav-link" data-section="files">Fichiers de données</a>
+        <a href="dashboard.html" class="nav-link nav-link--back">← Tableau de bord</a>
+      </nav>
+      <div class="sidebar-footer">
+        <p class="sidebar-user" id="sidebar-user-display">—</p>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-logout">Déconnexion</button>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="topbar">
+        <h2 class="topbar-title" id="page-title">Vue d'ensemble</h2>
+        <div class="topbar-actions">
+          <div class="hospital-badge" id="hospital-badge" hidden>
+            <svg class="hospital-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+            <span class="hospital-name" id="hospital-name"></span>
+          </div>
+          <span class="admin-badge">Administration</span>
+        </div>
+      </header>
+
+      <main class="content">
+
+        <!-- ── Overview ── -->
+        <section id="section-overview" class="content-section is-visible" data-section="overview">
+          <div class="grid-stats" id="admin-stats"></div>
+          <div id="dept-overview"></div>
+        </section>
+
+        <!-- ── Staff ── -->
+        <section id="section-staff" class="content-section" data-section="staff" hidden>
+          <div class="section-toolbar section-toolbar--spread">
+            <div>
+              <h3 class="section-heading">
+                Personnel
+                <span id="staff-count" class="stat-value--sm" style="display:inline-block;margin-left:0.5rem;vertical-align:middle;"></span>
+              </h3>
+              <p class="muted section-sub">Gérer les comptes, rôles et affectations de service</p>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-create-staff">+ Nouveau membre</button>
+          </div>
+          <div class="admin-filters">
+            <input type="search" id="staff-search" class="input" placeholder="Rechercher par nom ou identifiant…" />
+            <select id="staff-role-filter" class="input select">
+              <option value="">Tous les rôles</option>
+              <option value="Admin">Admin</option>
+              <option value="Register">Admissions</option>
+              <option value="Nurse">Infirmier(e)</option>
+              <option value="Doctor">Médecin</option>
+              <option value="Dentist">Dentiste</option>
+              <option value="Pediatre">Pédiatre</option>
+            </select>
+            <select id="staff-dept-filter" class="input select">
+              <option value="">Tous les services</option>
+              <option value="General">Général</option>
+              <option value="Pediatre">Pédiatrie</option>
+              <option value="Dental">Dentaire</option>
+              <option value="Surgery">Chirurgie</option>
+              <option value="ER">Urgences</option>
+            </select>
+          </div>
+          <div class="table-wrap card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nom complet</th>
+                  <th>Identifiant</th>
+                  <th>Rôle</th>
+                  <th>Hôpital</th>
+                  <th>Services assignés</th>
+                  <th>Dernière connexion</th>
+                  <th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="staff-tbody"></tbody>
+            </table>
+            <p id="staff-empty" class="empty-state" hidden>Aucun membre du personnel trouvé.</p>
+          </div>
+        </section>
+
+        <!-- ── Fichiers de données ── -->
+        <section id="section-files" class="content-section" data-section="files" hidden>
+          <div class="section-toolbar">
+            <h3 class="section-heading">Fichiers de données</h3>
+            <p class="muted section-sub">
+              Exportez les données vers Excel, modifiez-les hors ligne, puis ré-importez.
+              Enregistrez vos fichiers dans le dossier <code>data/</code> du projet.
+            </p>
+          </div>
+
+          <!-- Patients file card -->
+          <div class="file-card card" id="file-card-patients">
+            <div class="file-card-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/>
+                <line x1="16" y1="17" x2="8" y2="17"/>
+                <polyline points="10 9 9 9 8 9"/>
+              </svg>
+            </div>
+            <div class="file-card-info">
+              <h4 class="file-card-name">patients.xlsx</h4>
+              <p class="file-card-desc muted">
+                Tous les dossiers patients — nom, service, médecin, statut, dates.
+                Modifiez les données et ré-importez pour mettre à jour l'application.
+              </p>
+              <div class="file-card-cols">
+                <span class="col-pill">ID</span>
+                <span class="col-pill">Nom complet</span>
+                <span class="col-pill">Service</span>
+                <span class="col-pill">Médecin assigné</span>
+                <span class="col-pill">Statut</span>
+                <span class="col-pill">Date entrée</span>
+                <span class="col-pill">Heure entrée</span>
+                <span class="col-pill">Enregistré par</span>
+              </div>
+            </div>
+            <div class="file-card-actions">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-export-patients">↓ Exporter</button>
+              <label class="btn btn-outline btn-sm file-import-label">
+                ↑ Importer
+                <input type="file" accept=".xlsx,.xls" id="input-import-patients" class="sr-only" />
+              </label>
+              <button type="button" class="btn btn-link-file btn-sm" id="btn-link-patients" title="Lier patients.xlsx pour la synchronisation automatique">🔗 Lier le fichier</button>
+            </div>
+            <div class="file-card-footer">
+              <span class="sync-badge sync-badge--unlinked" id="sync-badge-patients">○ Non lié</span>
+              <p class="file-card-status" id="status-patients" hidden></p>
+            </div>
+          </div>
+
+          <!-- Accounts file card -->
+          <div class="file-card card" id="file-card-accounts">
+            <div class="file-card-icon file-card-icon--accounts">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+            </div>
+            <div class="file-card-info">
+              <h4 class="file-card-name">accounts.xlsx</h4>
+              <p class="file-card-desc muted">
+                Comptes du personnel — identifiants, rôles et services assignés.
+                <strong>Modifiez les rôles directement dans Excel</strong> puis importez pour
+                appliquer les changements. Les mots de passe ne sont jamais exportés.
+              </p>
+              <div class="file-card-cols">
+                <span class="col-pill">Identifiant</span>
+                <span class="col-pill">Nom complet</span>
+                <span class="col-pill col-pill--highlight">Rôle ✎</span>
+                <span class="col-pill col-pill--highlight">Services ✎</span>
+                <span class="col-pill">Dernière connexion</span>
+              </div>
+              <p class="file-note muted">
+                Rôles valides : <code>Admin</code> <code>Register</code> <code>Nurse</code>
+                <code>Doctor</code> <code>Dentist</code> <code>Pediatre</code>
+                &nbsp;·&nbsp;
+                Services : <code>General</code> <code>Pediatre</code> <code>Dental</code>
+                <code>Surgery</code> <code>ER</code>
+              </p>
+            </div>
+            <div class="file-card-actions">
+              <button type="button" class="btn btn-primary btn-sm" id="btn-export-accounts">↓ Exporter</button>
+              <label class="btn btn-outline btn-sm file-import-label">
+                ↑ Importer
+                <input type="file" accept=".xlsx,.xls" id="input-import-accounts" class="sr-only" />
+              </label>
+              <button type="button" class="btn btn-link-file btn-sm" id="btn-link-accounts" title="Lier accounts.xlsx pour la synchronisation automatique">🔗 Lier le fichier</button>
+            </div>
+            <div class="file-card-footer">
+              <span class="sync-badge sync-badge--unlinked" id="sync-badge-accounts">○ Non lié</span>
+              <p class="file-card-status" id="status-accounts" hidden></p>
+            </div>
+          </div>
+
+          <!-- Init helper -->
+          <div class="card file-init-card">
+            <h4 style="margin:0 0 0.5rem;">Générer les fichiers initiaux</h4>
+            <p class="muted" style="margin:0 0 1rem;font-size:0.875rem;">
+              Pour créer les fichiers de démonstration dans <code>data/</code>, exécutez
+              cette commande une fois dans le terminal (requiert Node.js) :
+            </p>
+            <pre class="file-init-cmd">node data/init.js</pre>
+            <p class="muted" style="margin:0.75rem 0 0;font-size:0.8rem;">
+              Ou utilisez les boutons <strong>Exporter</strong> ci-dessus pour générer les fichiers
+              depuis les données actuelles de l'application.
+            </p>
+          </div>
+        </section>
+
+        <!-- ── Hospitals ── -->
+        <section id="section-hospitals" class="content-section" data-section="hospitals" hidden>
+          <div class="section-toolbar section-toolbar--spread">
+            <div>
+              <h3 class="section-heading">Hôpitaux</h3>
+              <p class="muted section-sub">Gérer la liste des hôpitaux associés à votre installation.</p>
+            </div>
+            <button type="button" class="btn btn-primary" id="btn-create-hospital">+ Ajouter un hôpital</button>
+          </div>
+          <div class="admin-filters">
+            <input type="search" id="hospital-search" class="input" placeholder="Rechercher par nom, adresse ou email…" />
+          </div>
+          <div class="card" id="hospitals-list" style="min-height:120px;">
+            <!-- hospitals rendered here -->
+          </div>
+        </section>
+
+        <!-- ── Services ── -->
+        <section id="section-services" class="content-section" data-section="services" hidden>
+          <div class="section-toolbar">
+            <h3 class="section-heading">Services</h3>
+            <p class="muted section-sub">Liste des services disponibles dans l’application.</p>
+          </div>
+          <div class="card" id="services-list" style="min-height:120px;">
+            <!-- services rendered here -->
+          </div>
+        </section>
+
+        <!-- ── Patients ── -->
+        <section id="section-patients" class="content-section" data-section="patients" hidden>
+          <div class="section-toolbar section-toolbar--spread">
+            <div>
+              <h3 class="section-heading">
+                Dossiers patients
+                <span id="patient-count" class="stat-value--sm" style="display:inline-block;margin-left:0.5rem;vertical-align:middle;"></span>
+              </h3>
+              <p class="muted section-sub">Modifier ou supprimer des enregistrements patients</p>
+            </div>
+          </div>
+          <div class="admin-filters">
+            <input type="search" id="patient-search" class="input" placeholder="Rechercher par nom ou médecin…" />
+            <select id="patient-dept-filter" class="input select">
+              <option value="">Tous les services</option>
+              <option value="General">Général</option>
+              <option value="Pediatre">Pédiatrie</option>
+              <option value="Dental">Dentaire</option>
+              <option value="Surgery">Chirurgie</option>
+              <option value="ER">Urgences</option>
+            </select>
+            <select id="patient-status-filter" class="input select">
+              <option value="">Tous les statuts</option>
+              <option value="En attente">En attente</option>
+              <option value="En triage">En triage</option>
+              <option value="En traitement">En traitement</option>
+              <option value="Sorti(e)">Sorti(e)</option>
+            </select>
+          </div>
+          <div class="table-wrap card">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Nom complet</th>
+                  <th>Service</th>
+                  <th>Médecin assigné</th>
+                  <th>Statut</th>
+                  <th>Date d'entrée</th>
+                  <th>Enregistré par</th>
+                  <th class="col-actions">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="patient-tbody"></tbody>
+            </table>
+            <p id="patient-empty" class="empty-state" hidden>Aucun patient enregistré.</p>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Shared confirm/info modal -->
+  <div id="modal-root" aria-hidden="true">
+    <div class="modal-overlay" id="modal-overlay" hidden></div>
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+      <div class="modal-body card">
+        <header class="modal-header"><h3 id="modal-title">Titre</h3></header>
+        <div class="modal-content"><p id="modal-message">Message</p></div>
+        <footer class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="modal-cancel">Annuler</button>
+          <button type="button" class="btn btn-primary" id="modal-ok">OK</button>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit / Create drawer -->
+  <div class="drawer-overlay" id="drawer-overlay" hidden></div>
+  <aside class="drawer" id="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title" hidden>
+    <header class="drawer-header">
+      <h3 id="drawer-title" class="drawer-title">Modifier</h3>
+      <button type="button" class="btn-icon" id="btn-drawer-close" aria-label="Fermer">&#215;</button>
+    </header>
+    <div class="drawer-body" id="drawer-body"></div>
+  </aside>
+
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="js/firebase-config.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/modals.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/excel.js"></script>
+  <script src="js/PatientDescription.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HealthOne — Tableau de bord</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Instrument+Sans:wght@500;600&display=swap" rel="stylesheet" />
+</head>
+<body class="app-body">
+  <div class="app-layout">
+    <aside class="sidebar" aria-label="Navigation principale">
+      <div class="sidebar-brand">
+        <img src="assets/HealthOneLogo.png" alt="HealthOne" class="sidebar-logo" />
+        <span>HealthOne</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#overview" class="nav-link is-active" data-section="overview">Vue d’ensemble</a>
+        <a href="#patients" class="nav-link" data-section="patients">Patients</a>
+  <a href="#register" class="nav-link nav-link--register" data-section="register" data-roles="Register Nurse">Nouvelle inscription</a>
+  <a href="#personnel" class="nav-link" data-section="personnel">Personnels</a>
+        <a href="admin.html" class="nav-link nav-link--admin" data-roles="Admin">Administration</a>
+      </nav>
+      <div class="sidebar-footer">
+        <p class="sidebar-user" id="sidebar-user-display">—</p>
+        <button type="button" class="btn btn-ghost btn-sm" id="btn-logout">Déconnexion</button>
+      </div>
+    </aside>
+
+    <div class="app-main">
+      <header class="topbar">
+        <h2 class="topbar-title" id="page-title">Vue d'ensemble</h2>
+        <div class="topbar-actions">
+          <div class="hospital-badge" id="hospital-badge" hidden>
+            <svg class="hospital-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+            </svg>
+            <span class="hospital-name" id="hospital-name"></span>
+          </div>
+        </div>
+      </header>
+
+      <main class="content">
+        <section id="section-overview" class="content-section is-visible" data-section="overview">
+          <div class="grid-stats">
+            <article class="stat-card card">
+              <h3>Fonction</h3>
+              <p class="stat-value" id="stat-role">—</p>
+            </article>
+            <article class="stat-card card">
+              <h3>Patients enregistrés</h3>
+              <p class="stat-value" id="stat-count">0</p>
+            </article>
+            <article class="stat-card card">
+              <h3>Mode de stockage</h3>
+              <p class="stat-value stat-value--sm" id="stat-storage">Local</p>
+            </article>
+          </div>
+          <p class="lead muted">Bon retour. Utilisez le menu pour consulter les dossiers patients ou enregistrer de nouveaux patients (selon vos droits).</p>
+          <div class="overview-actions" style="margin-top:1rem;">
+            <button type="button" id="btn-add-patient" class="btn btn-primary">Ajouter un patient</button>
+          </div>
+        </section>
+
+        <section id="section-patients" class="content-section" data-section="patients" hidden>
+          <div class="section-toolbar">
+            <h3 class="section-heading">Dossiers patients <span id="patient-count" class="stat-value--sm" style="display:inline-block; margin-left:0.6rem; vertical-align:middle;">0</span></h3>
+            <p class="muted section-sub">Présentation en cartes · filtrée selon votre fonction le cas échéant</p>
+          </div>
+          
+          <div class="search-container">
+            <div class="search-field">
+              <input type="text" id="patient-search" class="input search-input" placeholder="Rechercher un patient (nom, médecin, service...)" autocomplete="off">
+              <button type="button" class="search-clear" id="patient-search-clear" hidden>×</button>
+            </div>
+            <div class="search-results-info" id="search-results-info" hidden>
+              <span class="text-muted text-sm">Affichage de <strong id="filtered-count">0</strong> patient(s) sur <strong id="total-count">0</strong></span>
+            </div>
+          </div>
+          
+          <div id="patient-cards" class="patient-grid"></div>
+          <p id="patients-empty" class="empty-state" hidden>Aucun patient pour l'instant. Le personnel des admissions peut ajouter des dossiers depuis Nouvelle inscription.</p>
+          <p id="patients-no-results" class="empty-state" hidden>Aucun patient ne correspond à votre recherche. Essayez avec d'autres mots-clés.</p>
+        </section>
+
+        <section id="section-register" class="content-section" data-section="register" hidden data-roles="Register Nurse">
+          <div class="section-toolbar">
+            <h3 class="section-heading">Nouveau patient</h3>
+            <p class="muted section-sub">La date, l’heure et l’agent enregistreur sont renseignés automatiquement à l’enregistrement.</p>
+          </div>
+          <form id="form-patient" class="card form-register">
+
+            <!-- Returning patient toggle -->
+            <div class="reg-block">
+              <span class="field-label">Déjà hospitalisé dans cet hôpital ?</span>
+              <div class="returning-toggle">
+                <label class="returning-opt">
+                  <input type="radio" name="returningPatient" value="no" checked />
+                  <span>Non — nouveau patient</span>
+                </label>
+                <label class="returning-opt">
+                  <input type="radio" name="returningPatient" value="yes" />
+                  <span>Oui — dossier existant</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Existing patient search (visible when "Oui") -->
+            <div id="existing-patient-section" class="reg-block" hidden>
+              <label class="field">
+                <span class="field-label">Rechercher le dossier existant</span>
+                <div style="position:relative;">
+                  <input type="text" id="existing-patient-search" class="input" placeholder="Taper le nom du patient…" autocomplete="off" />
+                  <ul id="existing-patient-results" class="doctor-select__list" hidden></ul>
+                </div>
+                <p id="existing-patient-info" class="field-hint" style="display:none;"></p>
+              </label>
+              <input type="hidden" name="existingPatientId" id="existing-patient-id" />
+            </div>
+
+            <div class="form-grid">
+              <!-- Full name -->
+              <label class="field field-span-2">
+                <span class="field-label">Nom complet</span>
+                <input type="text" name="fullName" id="fullName-input" required class="input" autocomplete="name" />
+              </label>
+
+              <!-- Reason for visit -->
+              <label class="field field-span-2">
+                <span class="field-label">Motif de la visite</span>
+                <input type="text" name="visitReason" class="input" placeholder="Ex : Consultation, Urgence, Suivi post-opératoire…" />
+              </label>
+
+              <!-- Department -->
+              <label class="field">
+                <span class="field-label">Service</span>
+                <select name="department" class="input select" required>
+                  <option value="General">Général</option>
+                  <option value="Pediatre">Pédiatrie</option>
+                  <option value="Dental">Dentaire</option>
+                  <option value="Surgery">Chirurgie</option>
+                  <option value="ER">Urgences</option>
+                </select>
+              </label>
+
+              <!-- Doctor -->
+              <label class="field">
+                <span class="field-label">Médecin assigné</span>
+                <div class="doctor-select" id="doctor-select-wrapper">
+                  <input type="text" name="assignedDoctor" id="doctor-search-input" class="input doctor-select__input" placeholder="Dr …" autocomplete="off" readonly />
+                  <ul class="doctor-select__list" id="doctor-suggestions-list" hidden></ul>
+                </div>
+              </label>
+
+              <!-- Status -->
+              <label class="field">
+                <span class="field-label">Statut</span>
+                <select name="status" class="input select">
+                  <option value="En attente">En attente</option>
+                  <option value="En triage">En triage</option>
+                  <option value="En traitement">En traitement</option>
+                  <option value="Sorti(e)">Sorti(e)</option>
+                </select>
+              </label>
+
+              <!-- Registered by -->
+              <label class="field">
+                <span class="field-label">Enregistré par</span>
+                <input type="text" id="registered-by-display" class="input" readonly tabindex="-1" />
+              </label>
+            </div>
+
+            <!-- Optional extra fields -->
+            <div class="opt-fields-section">
+              <p class="opt-fields-label">Informations supplémentaires :</p>
+              <div class="opt-tags" id="opt-tags">
+                <button type="button" class="opt-tag" data-opt="phone" data-label="Téléphone">+ Téléphone</button>
+                <button type="button" class="opt-tag" data-opt="address" data-label="Adresse">+ Adresse</button>
+                <button type="button" class="opt-tag" data-opt="email" data-label="Email">+ Email</button>
+                <button type="button" class="opt-tag" data-opt="emergencyContact" data-label="Contact d'Urgence">+ Contact d'Urgence</button>
+                <button type="button" class="opt-tag" data-opt="description" data-label="Description">+ Description</button>
+              </div>
+              <div class="form-grid opt-fields-area" id="opt-fields-area"></div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btn-save-patient">Enregistrer le patient</button>
+            </div>
+            <p id="registry-message" class="form-message" hidden></p>
+          </form>
+        </section>
+
+        <section id="section-personnel" class="content-section" data-section="personnel" hidden>
+          <div class="section-toolbar">
+            <h3 class="section-heading">Personnels</h3>
+            <p class="muted section-sub">Liste du personnel travaillant dans votre hôpital (filtrée par hôpital du compte connecté).</p>
+          </div>
+          
+          <div class="search-container">
+            <div class="search-field">
+              <input type="text" id="personnel-search" class="input search-input" placeholder="Rechercher un membre du personnel (nom, fonction, email...)" autocomplete="off">
+              <button type="button" class="search-clear" id="personnel-search-clear" hidden>×</button>
+            </div>
+            <div class="search-results-info" id="personnel-search-results-info" hidden>
+              <span class="text-muted text-sm">Affichage de <strong id="personnel-filtered-count">0</strong> membre(s) sur <strong id="personnel-total-count">0</strong></span>
+            </div>
+          </div>
+          
+          <div class="card" id="personnel-list" style="min-height:120px;">
+            <!-- personnel rows rendered by js/dashboard.js -->
+          </div>
+          <p id="personnel-no-results" class="empty-state" hidden>Aucun membre du personnel ne correspond à votre recherche. Essayez avec d'autres mots-clés.</p>
+        </section>
+      </main>
+    </div>
+  </div>
+  <!-- Modals root (reused for confirm, info and notifications) -->
+  <div id="modal-root" aria-hidden="true">
+    <div class="modal-overlay" id="modal-overlay" hidden></div>
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+      <div class="modal-body card">
+        <header class="modal-header">
+          <h3 id="modal-title">Titre</h3>
+        </header>
+        <div class="modal-content">
+          <p id="modal-message">Message</p>
+        </div>
+        <footer class="modal-actions">
+          <button type="button" class="btn btn-ghost" id="modal-cancel">Annuler</button>
+          <button type="button" class="btn btn-primary" id="modal-ok">OK</button>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recaptcha container required for Firebase Phone Auth -->
+  <div id="recaptcha-container" style="position:fixed; left:-9999px; top:-9999px; width:1px; height:1px; overflow:hidden;" aria-hidden="true"></div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/storage.js"></script>
+  <!-- SheetJS for Excel export (CDN) -->
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+  <script src="js/exportExcel.js"></script>
+  <script src="js/modals.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/PatientDescription.js"></script>
+  <script src="js/registry.js"></script>
+</body>
+</html>
